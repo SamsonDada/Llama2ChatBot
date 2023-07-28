@@ -30,3 +30,8 @@
     ```
     pip install -r requirements.txt
     ```
+
+3. run app
+```
+streamlit run app.py
+```
