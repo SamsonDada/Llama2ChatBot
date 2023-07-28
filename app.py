@@ -13,15 +13,13 @@ import streamlit as st
 from download_models import download_model_if_not_exist 
 
 def init_page() -> None:
-    st.set_page_config(
-        page_title="Personal ChatGPT"
-    )
-    st.header("Personal ChatGPT")
+    st.set_page_config(page_title="Llama 2",page_icon="🦙")
+    st.header("🦙 Llama 2 ChatBot")
     st.sidebar.title("Options")
 
 
 def init_messages() -> None:
-    clear_button = st.sidebar.button("Clear Conversation", key="clear")
+    clear_button = st.sidebar.button("Clear Conversation", key="clear_conversation")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = [
             SystemMessage(
@@ -40,15 +38,13 @@ def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
                                 ("llama-2-7b-chat.ggmlv3.q2_K", "llama-2-13b-chat.ggmlv3.q8_0"))
 
     # Dictionary to map model names to their respective URLs and file names
-    model_urls = {
-        "gpt-3.5-turbo-0613": "https://huggingface.co/models/gpt-3.5-turbo/resolve/main/pytorch_model.bin",
-        "gpt-4": "https://huggingface.co/models/gpt4/resolve/main/pytorch_model.bin",
+    MODEL_URLS = {
         "llama-2-7b-chat.ggmlv3.q2_K": "https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q2_K.bin",
         "llama-2-13b-chat.ggmlv3.q8_0": "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML/resolve/main/llama-2-13b-chat.ggmlv3.q8_0.bin"
     }
 
     # Get the URL and file name based on the selected model name
-    url = model_urls[model_name]
+    url = MODEL_URLS[model_name]
     file_name = os.path.basename(url)
     models_dir = './models'
 
@@ -58,7 +54,9 @@ def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
     if not downloaded:
         st.sidebar.success("Model already exists. No need to download.")
     temperature = st.sidebar.slider("Temperature:", min_value=0.0,
-                                    max_value=1.0, value=0.0, step=0.01)
+                                    max_value=1.0, value=0.8, step=0.01)
+    top_p = st.sidebar.slider("top_p:", min_value=0.0,
+                                max_value=1.0, value=0.9, step=0.01)
     if model_name.startswith("gpt-"):
         return ChatOpenAI(temperature=temperature, model_name=model_name)
     elif model_name.startswith("llama-2-"):
@@ -67,12 +65,14 @@ def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
             model_path=f"./models/{model_name}.bin",
             input={"temperature": temperature,
                    "max_length": 2000,
-                   "top_p": 1
+                   "top_p": top_p,
+                   "repetition_penalty":1
                    },
             callback_manager=callback_manager,
             verbose=False,  # True
         )
-
+    else:
+        raise ValueError(f"Unsupported model: {model_name}")
 
 def get_answer(llm, messages) -> tuple[str, float]:
     if isinstance(llm, ChatOpenAI):
@@ -81,6 +81,8 @@ def get_answer(llm, messages) -> tuple[str, float]:
         return answer.content, cb.total_cost
     if isinstance(llm, LlamaCpp):
         return llm(llama_v2_prompt(convert_langchainschema_to_dict(messages))), 0.0
+    else:
+        raise TypeError(f"Unsupported llm type: {type(llm).__name__}")
 
 
 def find_role(message: Union[SystemMessage, HumanMessage, AIMessage]) -> str:
@@ -151,7 +153,7 @@ def main() -> None:
     # Supervise user input
     if user_input := st.chat_input("Input your question!"):
         st.session_state.messages.append(HumanMessage(content=user_input))
-        with st.spinner("ChatGPT is typing ..."):
+        with st.spinner("Thinking ..."):
             answer, cost = get_answer(llm, st.session_state.messages)
         st.session_state.messages.append(AIMessage(content=answer))
         st.session_state.costs.append(cost)
