@@ -1,5 +1,6 @@
 # app.py
 from typing import List, Union
+import os
 
 # from dotenv import load_dotenv, find_dotenv
 from langchain.callbacks import get_openai_callback
@@ -9,7 +10,7 @@ from langchain.llms import LlamaCpp
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import streamlit as st
-
+from download_models import download_model_if_not_exist 
 
 def init_page() -> None:
     st.set_page_config(
@@ -33,7 +34,29 @@ def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
     # model_name = st.sidebar.radio("Choose LLM:",
     #                               ("gpt-3.5-turbo-0613", "gpt-4",
     #                                "llama-2-7b-chat.ggmlv3.q2_K"))
-    model_name = "llama-2-7b-chat.ggmlv3.q2_K"
+    # model_name = "llama-2-7b-chat.ggmlv3.q2_K"
+    # Model selection in the sidebar
+    model_name = st.sidebar.radio("Choose LLM:",
+                                ("llama-2-7b-chat.ggmlv3.q2_K", "llama-2-13b-chat.ggmlv3.q8_0"))
+
+    # Dictionary to map model names to their respective URLs and file names
+    model_urls = {
+        "gpt-3.5-turbo-0613": "https://huggingface.co/models/gpt-3.5-turbo/resolve/main/pytorch_model.bin",
+        "gpt-4": "https://huggingface.co/models/gpt4/resolve/main/pytorch_model.bin",
+        "llama-2-7b-chat.ggmlv3.q2_K": "https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q2_K.bin",
+        "llama-2-13b-chat.ggmlv3.q8_0": "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML/resolve/main/llama-2-13b-chat.ggmlv3.q8_0.bin"
+    }
+
+    # Get the URL and file name based on the selected model name
+    url = model_urls[model_name]
+    file_name = os.path.basename(url)
+    models_dir = './models'
+
+    # Call the function to download the model if it doesn't exist
+    downloaded = download_model_if_not_exist(url, file_name, models_dir)
+
+    if not downloaded:
+        st.sidebar.success("Model already exists. No need to download.")
     temperature = st.sidebar.slider("Temperature:", min_value=0.0,
                                     max_value=1.0, value=0.0, step=0.01)
     if model_name.startswith("gpt-"):
