@@ -1,37 +1,53 @@
+# Llama 2 ChatBot
+
+This project is a chatbot built with Llama 2. 
+
 ## Installation
 
-1. Setting Up the Virtual Environment:
-   - Open a terminal or command prompt.
-   - Create a virtual environment using the Python's built-in venv module with the following command:
-        
+Follow these steps to install and run the chatbot:
+
+### 1. Setting Up the Virtual Environment
+
+1. Open a terminal or command prompt.
+
+2. Create a virtual environment using Python's built-in `venv` module with the following command:
+
+    ```bash
+    python3 -m venv chatbot
+    ```
+   
+    This command creates a new directory named 'chatbot'. Feel free to choose a different name if you prefer.
+
+3. Activate the virtual environment with the following command:
+
+    - On macOS and Linux:
+
+        ```bash
+        source chatbot/bin/activate
         ```
-        python3 -m venv chatbot
+
+    - On Windows:
+
+        ```bash
+        .\chatbot\Scripts\activate
         ```
-        
-    This will create a new directory named 'cellvision'. Feel free to choose a different name if you prefer.
-
-    - Activate the virtual environment with the following command:
-       -  On macOS and Linux:
-
-            ```
-            source chatbot/bin/activate
-            ```
-
-       -  On Windows:
-
-            ```
-            .\chatbot\Scripts\activate
-            ```
 
     You will know the virtual environment is activated when its name appears in your command prompt.   
 
+### 2. Install the Necessary Packages
 
-2. install the necessary packages with the following command:
-    ```
-    pip install -r requirements.txt
-    ```
+Once the virtual environment is activated, install the necessary packages with the following command:
 
-3. run app
+```bash
+pip install -r requirements.txt
 ```
+
+### 3. Run the App
+After all the packages have been installed, you can run the app with the following command:
+
+```bash
 streamlit run app.py
 ```
+
+Enjoy interacting with the Llama 2 ChatBot!
+
