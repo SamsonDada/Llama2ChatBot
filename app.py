@@ -1,21 +1,35 @@
 # app.py
 from typing import List, Union
 import os
+from streamlit_extras.app_logo import add_logo
+from streamlit_extras.badges import badge
 
 # from dotenv import load_dotenv, find_dotenv
 from langchain.callbacks import get_openai_callback
 from langchain.chat_models import ChatOpenAI
-from langchain.schema import (SystemMessage, HumanMessage, AIMessage)
+from langchain.schema import SystemMessage, HumanMessage, AIMessage
 from langchain.llms import LlamaCpp
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import streamlit as st
-from download_models import download_model_if_not_exist 
+from download_models import download_model_if_not_exist
+
 
 def init_page() -> None:
-    st.set_page_config(page_title="Llama 2",page_icon="🦙")
+    st.set_page_config(page_title="Llama 2", page_icon="logo/llama-144.png")
+    
+    add_logo("logo/llama-144.png",height=300)
+    
     st.header("🦙 Llama 2 ChatBot")
-    st.sidebar.title("Options")
+    # st.sidebar.title("Options")
+    hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden; }
+        footer {visibility: hidden;}
+        </style>
+        """
+    st.markdown(hide_menu_style, unsafe_allow_html=True)
+    
 
 
 def init_messages() -> None:
@@ -23,72 +37,91 @@ def init_messages() -> None:
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = [
             SystemMessage(
-                content="You are a helpful AI assistant. Respond your answer in mardkown format.")
+                content="You are a helpful AI assistant. Respond your answer in mardkown format."
+            )
         ]
         # st.session_state.costs = []
 
 
 def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
-    # model_name = st.sidebar.radio("Choose LLM:",
-    #                               ("gpt-3.5-turbo-0613", "gpt-4",
-    #                                "llama-2-7b-chat.ggmlv3.q2_K"))
-    # model_name = "llama-2-7b-chat.ggmlv3.q2_K"
+
     # Model selection in the sidebar
-    model_name = st.sidebar.radio("Choose LLM:",
-                                ("llama-2-7b-chat.ggmlv3.q2_K", "llama-2-13b-chat.ggmlv3.q8_0"))
+    with st.sidebar:
+        model_name = st.radio(
+            "Choose LLM:",
+            (
+                "llama-2-7b-chat.ggmlv3.q4_K_S",
+                "llama-2-7b-chat.ggmlv3.q2_K",
+                "llama-2-13b-chat.ggmlv3.q4_0",
+                "llama-2-13b-chat.ggmlv3.q8_0",
+                
+                #  "open-llama-7B-open-instruct.ggmlv3.q4_0.bin"
+            ),
+        )
 
     # Dictionary to map model names to their respective URLs and file names
     MODEL_URLS = {
         "llama-2-7b-chat.ggmlv3.q2_K": "https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q2_K.bin",
-        "llama-2-13b-chat.ggmlv3.q8_0": "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML/resolve/main/llama-2-13b-chat.ggmlv3.q8_0.bin"
+        "llama-2-13b-chat.ggmlv3.q8_0": "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML/resolve/main/llama-2-13b-chat.ggmlv3.q8_0.bin",
+        # "open-llama-7B-open-instruct.ggmlv3.q4_0.bin": "https://huggingface.co/TheBloke/open-llama-7b-open-instruct-GGML/resolve/main/open-llama-7B-open-instruct.ggmlv3.q4_0.bin",
+        "llama-2-13b-chat.ggmlv3.q4_0": "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML/resolve/main/llama-2-13b-chat.ggmlv3.q4_0.bin",
+        "llama-2-7b-chat.ggmlv3.q4_K_S": "https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q4_K_S.bin",
     }
 
     # Get the URL and file name based on the selected model name
     url = MODEL_URLS[model_name]
     file_name = os.path.basename(url)
-    models_dir = './models'
+    models_dir = "./models"
 
     # Call the function to download the model if it doesn't exist
     downloaded = download_model_if_not_exist(url, file_name, models_dir)
 
     # if not downloaded:
     #     st.sidebar.success("Model already exists. No need to download.")
-        
 
-    temperature = st.sidebar.slider('Temperature:', min_value=0.01, max_value=5.0, value=0.1, step=0.01)
-    top_p = st.sidebar.slider('Top P:', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
-    max_seq_len = st.sidebar.slider('Max Sequence Length:', min_value=64, max_value=4096, value=2048, step=8)
-    n_ctx = st.sidebar.slider('Adjusting the Context Window:', min_value=512, max_value=20480, value=2048, step=512)
+    temperature = st.sidebar.slider(
+        "Temperature:", min_value=0.01, max_value=5.0, value=0.1, step=0.01
+    )
+    top_p = st.sidebar.slider(
+        "Top P:", min_value=0.01, max_value=1.0, value=0.9, step=0.01
+    )
+    max_seq_len = st.sidebar.slider(
+        "Max Sequence Length:", min_value=64, max_value=4096, value=2048, step=8
+    )
+    n_ctx = st.sidebar.slider(
+        "Adjusting the Context Window:",
+        min_value=512,
+        max_value=20480,
+        value=512,
+        step=512,
+    )
 
-    # if model_name.startswith("gpt-"):
-    #     return ChatOpenAI(temperature=temperature, model_name=model_name)
+   
     if model_name.startswith("llama-2-"):
         callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
         return LlamaCpp(
             model_path=f"./models/{model_name}.bin",
             n_ctx=n_ctx,
-            input={"temperature": temperature,
-                   "max_length": 2000,
+            input={
+                "temperature": temperature,
+                "max_length": 2000,
                 #    "n_ctx": 2048,
-                   "top_p": top_p,
-                   "repetition_penalty":1,
-                   "max_seq_len": max_seq_len,
-                   },
+                "top_p": top_p,
+                "repetition_penalty": 1,
+                "max_seq_len": max_seq_len,
+            },
             callback_manager=callback_manager,
             verbose=False,  # True
         )
     else:
         raise ValueError(f"Unsupported model: {model_name}")
 
+
 def get_answer(llm, messages) -> tuple[str, float]:
-    # if isinstance(llm, ChatOpenAI):
-    #     with get_openai_callback() as cb:
-    #         answer = llm(messages)
-    #     return answer.content, cb.total_cost
+
     if isinstance(llm, LlamaCpp):
-        # return llm(llama_v2_prompt(convert_langchainschema_to_dict(messages))), 0.0
         return llm(llama_v2_prompt(convert_langchainschema_to_dict(messages)))
-    
+
     else:
         raise TypeError(f"Unsupported llm type: {type(llm).__name__}")
 
@@ -107,15 +140,15 @@ def find_role(message: Union[SystemMessage, HumanMessage, AIMessage]) -> str:
 
 
 def convert_langchainschema_to_dict(
-        messages: List[Union[SystemMessage, HumanMessage, AIMessage]]) \
-        -> List[dict]:
+    messages: List[Union[SystemMessage, HumanMessage, AIMessage]]
+) -> List[dict]:
     """
     Convert the chain of chat messages in list of langchain.schema format to
     list of dictionary format.
     """
-    return [{"role": find_role(message),
-             "content": message.content
-             } for message in messages]
+    return [
+        {"role": find_role(message), "content": message.content} for message in messages
+    ]
 
 
 def llama_v2_prompt(messages: List[dict]) -> str:
@@ -145,14 +178,13 @@ def llama_v2_prompt(messages: List[dict]) -> str:
         f"{BOS}{B_INST} {(prompt['content']).strip()} {E_INST} {(answer['content']).strip()} {EOS}"
         for prompt, answer in zip(messages[::2], messages[1::2])
     ]
-    messages_list.append(
-        f"{BOS}{B_INST} {(messages[-1]['content']).strip()} {E_INST}")
+    messages_list.append(f"{BOS}{B_INST} {(messages[-1]['content']).strip()} {E_INST}")
 
     return "".join(messages_list)
 
 
 def main() -> None:
-    # _ = load_dotenv(find_dotenv())
+ 
 
     init_page()
     llm = select_llm()
@@ -162,11 +194,11 @@ def main() -> None:
     if user_input := st.chat_input("Input your question!"):
         st.session_state.messages.append(HumanMessage(content=user_input))
         with st.spinner("Thinking ..."):
-            # answer, cost = get_answer(llm, st.session_state.messages)
+      
             answer = get_answer(llm, st.session_state.messages)
 
         st.session_state.messages.append(AIMessage(content=answer))
-        # st.session_state.costs.append(cost)
+
 
     # Display chat history
     messages = st.session_state.get("messages", [])
@@ -178,13 +210,12 @@ def main() -> None:
             with st.chat_message("user"):
                 st.markdown(message.content)
 
-    # costs = st.session_state.get("costs", [])
-    # st.sidebar.markdown("## Costs")
-    # st.sidebar.markdown(f"**Total cost: ${sum(costs):.5f}**")
-    # for cost in costs:
-    #     st.sidebar.markdown(f"- ${cost:.5f}")
+
 
 
 # streamlit run app.py
 if __name__ == "__main__":
     main()
+    with st.sidebar:
+        badge(type="github", name="Kevoyuan/chatbot")
+        

@@ -1,3 +1,7 @@
 /chatbot
 models/llama-2-7b-chat.ggmlv3.q2_K.bin
 models/llama-2-13b-chat.ggmlv3.q8_0.bin
+*.bin
+.DS_Store
+Miniforge3-MacOSX-arm64.sh
+.vscode/settings.json
