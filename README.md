@@ -4,6 +4,8 @@
 </p>
 This project is a chatbot built with Llama 2. 
 
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://llama2chatbot.streamlit.app/)
 ## Installation
 
 Follow these steps to install and run the chatbot:
