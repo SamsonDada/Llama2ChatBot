@@ -1,6 +1,6 @@
 # Llama 2 ChatBot
-<p align="center">
-    <img width=200 src="logo/llama-144.png">
+<p align="left">
+    <img width=180 src="logo/llama-144.png">
 </p>
 This project is a chatbot built with Llama 2. 
 
