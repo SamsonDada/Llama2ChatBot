@@ -25,7 +25,7 @@ def init_messages() -> None:
             SystemMessage(
                 content="You are a helpful AI assistant. Respond your answer in mardkown format.")
         ]
-        st.session_state.costs = []
+        # st.session_state.costs = []
 
 
 def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
@@ -51,20 +51,25 @@ def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
     # Call the function to download the model if it doesn't exist
     downloaded = download_model_if_not_exist(url, file_name, models_dir)
 
-    if not downloaded:
-        st.sidebar.success("Model already exists. No need to download.")
+    # if not downloaded:
+    #     st.sidebar.success("Model already exists. No need to download.")
         
+
     temperature = st.sidebar.slider('Temperature:', min_value=0.01, max_value=5.0, value=0.1, step=0.01)
     top_p = st.sidebar.slider('Top P:', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
     max_seq_len = st.sidebar.slider('Max Sequence Length:', min_value=64, max_value=4096, value=2048, step=8)
-    if model_name.startswith("gpt-"):
-        return ChatOpenAI(temperature=temperature, model_name=model_name)
-    elif model_name.startswith("llama-2-"):
+    n_ctx = st.sidebar.slider('Adjusting the Context Window:', min_value=512, max_value=20480, value=2048, step=512)
+
+    # if model_name.startswith("gpt-"):
+    #     return ChatOpenAI(temperature=temperature, model_name=model_name)
+    if model_name.startswith("llama-2-"):
         callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
         return LlamaCpp(
             model_path=f"./models/{model_name}.bin",
+            n_ctx=n_ctx,
             input={"temperature": temperature,
                    "max_length": 2000,
+                #    "n_ctx": 2048,
                    "top_p": top_p,
                    "repetition_penalty":1,
                    "max_seq_len": max_seq_len,
@@ -76,12 +81,14 @@ def select_llm() -> Union[ChatOpenAI, LlamaCpp]:
         raise ValueError(f"Unsupported model: {model_name}")
 
 def get_answer(llm, messages) -> tuple[str, float]:
-    if isinstance(llm, ChatOpenAI):
-        with get_openai_callback() as cb:
-            answer = llm(messages)
-        return answer.content, cb.total_cost
+    # if isinstance(llm, ChatOpenAI):
+    #     with get_openai_callback() as cb:
+    #         answer = llm(messages)
+    #     return answer.content, cb.total_cost
     if isinstance(llm, LlamaCpp):
-        return llm(llama_v2_prompt(convert_langchainschema_to_dict(messages))), 0.0
+        # return llm(llama_v2_prompt(convert_langchainschema_to_dict(messages))), 0.0
+        return llm(llama_v2_prompt(convert_langchainschema_to_dict(messages)))
+    
     else:
         raise TypeError(f"Unsupported llm type: {type(llm).__name__}")
 
@@ -155,9 +162,11 @@ def main() -> None:
     if user_input := st.chat_input("Input your question!"):
         st.session_state.messages.append(HumanMessage(content=user_input))
         with st.spinner("Thinking ..."):
-            answer, cost = get_answer(llm, st.session_state.messages)
+            # answer, cost = get_answer(llm, st.session_state.messages)
+            answer = get_answer(llm, st.session_state.messages)
+
         st.session_state.messages.append(AIMessage(content=answer))
-        st.session_state.costs.append(cost)
+        # st.session_state.costs.append(cost)
 
     # Display chat history
     messages = st.session_state.get("messages", [])
@@ -169,11 +178,11 @@ def main() -> None:
             with st.chat_message("user"):
                 st.markdown(message.content)
 
-    costs = st.session_state.get("costs", [])
-    st.sidebar.markdown("## Costs")
-    st.sidebar.markdown(f"**Total cost: ${sum(costs):.5f}**")
-    for cost in costs:
-        st.sidebar.markdown(f"- ${cost:.5f}")
+    # costs = st.session_state.get("costs", [])
+    # st.sidebar.markdown("## Costs")
+    # st.sidebar.markdown(f"**Total cost: ${sum(costs):.5f}**")
+    # for cost in costs:
+    #     st.sidebar.markdown(f"- ${cost:.5f}")
 
 
 # streamlit run app.py
