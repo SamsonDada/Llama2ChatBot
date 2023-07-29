@@ -3,3 +3,4 @@ langchain==0.0.234
 python-dotenv==1.0.0
 streamlit
 llama-cpp-python==0.1.65
+streamlit-extras
