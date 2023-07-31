@@ -2,7 +2,7 @@
 <p align="left">
     <img width=180 src="logo/llama-144.png">
 </p>
-This project is a chatbot built with Llama 2 that runs on your local machine. 
+This project is a chatbot built with Llama 2 that runs on your local machine, the web application is powerede by Streamlit. 
 
 
 You can try the Demo with CPU here:
