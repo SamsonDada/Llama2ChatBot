@@ -10,7 +10,7 @@ You can try the Demo with CPU here:
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://llama2chatbot.streamlit.app/)
 
 <p align="left">
-    <img width=180 src="screenshot.png">
+    <img src="Screenshot.png">
 </p>
 ## Installation
 
