@@ -8,6 +8,10 @@ This project is a chatbot built with Llama 2 that runs on your local machine, th
 You can try the Demo with CPU here:
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://llama2chatbot.streamlit.app/)
+
+<p align="left">
+    <img width=180 src="screenshot.png">
+</p>
 ## Installation
 
 Follow these steps to install and run the chatbot on your local machine:
