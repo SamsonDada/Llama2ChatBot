@@ -61,3 +61,5 @@ streamlit run app.py
 
 Enjoy interacting with the Llama 2 ChatBot!
 
+Thanks: https://medium.com/@daydreamersjp/implementing-locally-hosted-llama2-chat-ui-using-streamlit-53b181651b4e
+
