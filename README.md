@@ -2,15 +2,19 @@
 <p align="left">
     <img width=180 src="logo/llama-144.png">
 </p>
-This project is a chatbot built with Llama 2. 
+This project is a chatbot built with Llama 2 that runs on your local machine, the web application is powerede by Streamlit. 
 
 
 You can try the Demo with CPU here:
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://llama2chatbot.streamlit.app/)
+
+<p align="left">
+    <img src="Screenshot.png">
+</p>
 ## Installation
 
-Follow these steps to install and run the chatbot:
+Follow these steps to install and run the chatbot on your local machine:
 
 ### 1. Setting Up the Virtual Environment
 
@@ -63,4 +67,8 @@ streamlit run app.py
 ```
 
 Enjoy interacting with the Llama 2 ChatBot!
+
+## Resource
+- [GitHub to deploy LLaMA2 on Replicate](https://github.com/a16z-infra/cog-llama-template)
+- [Implementing Locally-Hosted Llama2 Chat UI Using Streamlit](https://medium.com/@daydreamersjp/implementing-locally-hosted-llama2-chat-ui-using-streamlit-53b181651b4e)
 
