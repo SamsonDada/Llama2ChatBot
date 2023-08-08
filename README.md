@@ -24,7 +24,14 @@ Follow these steps to install and run the chatbot:
    
     This command creates a new directory named 'chatbot'. Feel free to choose a different name if you prefer.
 
-3. Activate the virtual environment with the following command:
+3. Create a new conda environment, install CLI app, and activate the environment.
+
+    ```bash
+    conda create -n mlc-chat-venv -c mlc-ai -c conda-forge mlc-chat-cli-nightly
+    conda activate mlc-chat-venv
+    ```
+
+4. Activate the virtual environment with the following command:
 
     - On macOS and Linux:
 
